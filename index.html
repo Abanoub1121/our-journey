@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Journey — Boba & Lola</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  color:white;
+  background:url('https://img.goodfon.com/original/1920x1080/a/22/kosmos-luna-mesyac-polumesyac.jpg?d=1') center/cover no-repeat;
+  background-size:cover;
+}
+header{
+  padding:24px;
+  text-align:center;
+  background:rgba(0,0,0,0.4);
+}
+header h1{margin:0;color:#ff2d95;}
+header p{margin-top:6px;color:#ffdff3;font-size:0.9rem;}
+.grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap:12px;
+  max-width:1200px;
+  margin:20px auto;
+}
+.photoCard{
+  width:100%;
+  aspect-ratio:1/1;
+  border-radius:12px;
+  overflow:hidden;
+  cursor:pointer;
+  background:#00000040;
+  transition: transform 0.3s ease;
+}
+.photoCard:hover{
+  transform: scale(1.05);
+}
+.photoCard img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+#scenePanel{
+  position:fixed;
+  left:20px;
+  bottom:20px;
+  display:flex;
+  gap:20px;
+  align-items:flex-end;
+  z-index:10;
+}
+.modelWrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  cursor:pointer;
+  position:relative;
+  width:90px;
+}
+.nameLabel{
+  margin-bottom:4px;
+  font-size:0.85rem;
+  color:#ffeef3;
+  text-align:center;
+}
+.bubble{
+  position:absolute;
+  bottom:120%;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,0.85);
+  padding:6px 12px;
+  border-radius:16px;
+  font-size:0.9rem;
+  display:none;
+  white-space:nowrap;
+  opacity:0;
+  transition: opacity 0.4s ease;
+  z-index:20;
+}
+.bubble.show{
+  display:block;
+  opacity:1;
+}
+.bubble::after{
+  content:"";
+  position:absolute;
+  top:100%;
+  left:50%;
+  transform:translateX(-50%);
+  border-width:6px;
+  border-style:solid;
+  border-color:rgba(0,0,0,0.85) transparent transparent transparent;
+}
+model-viewer{
+  width:90px;
+  height:90px;
+  background:transparent;
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Our Journey</h1>
+  <p>Click a photo to write its story. Meet Boba & Lola below.</p>
+</header>
+
+<div class="grid" id="photoGrid"></div>
+
+<div id="scenePanel">
+  <div class="modelWrap" id="bobaWrap">
+    <div class="nameLabel">Boba</div>
+    <model-viewer id="bobaModel"
+      src="assets/chibi_astronaut.glb"
+      camera-controls auto-rotate alt="Boba Model">
+    </model-viewer>
+    <div class="bubble" id="bobaBubble"></div>
+  </div>
+  <div class="modelWrap" id="lolaWrap">
+    <div class="nameLabel">Lola</div>
+    <model-viewer id="lolaModel"
+      src="assets/chibi_dog.glb"
+      camera-controls auto-rotate alt="Lola Model">
+    </model-viewer>
+    <div class="bubble" id="dogBubble"></div>
+  </div>
+</div>
+
+<script>
+// --- PHOTO GRID ---
+const grid=document.getElementById('photoGrid');
+for(let i=1;i<=50;i++){
+  const card=document.createElement('div');
+  card.className='photoCard';
+  const img=document.createElement('img');
+  img.loading='lazy';
+  img.src=`https://picsum.photos/seed/journey${i}/400/400`;
+  img.alt=`Photo ${i}`;
+  img.onclick=()=>location.href=`story.html?id=${i}`;
+  card.appendChild(img);
+  grid.appendChild(card);
+}
+
+// --- Boba Messages ---
+const bobaLines=[
+  'I love you Tonaaa ♥♥',
+  'I am here with you my love ♥✨',
+  'You are mine ok ?! 😉♥',
+  'You are what I wish for ♥♥',
+  'I will always be here for you ♥🫂',
+  'Eat well ok ? 😠'
+];
+let bIndex=0;
+const bobaBubble=document.getElementById('bobaBubble');
+let bobaTimeout, autoInterval;
+
+function showBoba(){
+  clearTimeout(bobaTimeout);
+  bobaBubble.textContent=bobaLines[bIndex];
+  bobaBubble.classList.add('show');
+  bobaTimeout=setTimeout(()=>{ bobaBubble.classList.remove('show'); },3000);
+  bIndex=(bIndex+1)%bobaLines.length;
+}
+
+function startAutoBoba(){
+  autoInterval=setInterval(showBoba,5000);
+}
+startAutoBoba();
+
+document.getElementById('bobaWrap').addEventListener('click',()=>{
+  clearInterval(autoInterval);
+  showBoba();
+  startAutoBoba();
+});
+
+// --- Lola Bark ---
+const dogBubble=document.getElementById('dogBubble');
+let dogSilenceUntil=0;
+function dogHaw(){
+  if(Date.now()<dogSilenceUntil) return;
+  dogBubble.textContent='haw haw';
+  dogBubble.classList.add('show');
+  setTimeout(()=>dogBubble.classList.remove('show'),3000);
+}
+setInterval(dogHaw,15000);
+setTimeout(dogHaw,1500);
+
+document.getElementById('lolaWrap').addEventListener('click',()=>{
+  dogSilenceUntil=Date.now()+60000;
+  dogBubble.textContent='♥';
+  dogBubble.classList.add('show');
+  setTimeout(()=>dogBubble.classList.remove('show'),3000);
+});
+</script>
+</body>
+</html>
